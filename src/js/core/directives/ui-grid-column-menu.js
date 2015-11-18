@@ -309,7 +309,9 @@ function ( i18nService, uiGridConstants, gridUtil ) {
       if (left < positionData.offset){
         left = positionData.offset;
       }
-
+      if (column.grid.isRTL()) {
+          left = positionData.left + positionData.parentLeft + positionData.width;
+      }
       $elm.css('left', left + 'px');
       $elm.css('top', (positionData.top + positionData.height) + 'px');
     }

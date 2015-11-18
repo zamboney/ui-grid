@@ -253,7 +253,8 @@ function ($compile, $timeout, $window, $document, gridUtil, uiGridConstants, i18
                  * Ideally the focus would remain on the item.
                  * However, since there are two menu items that have their 'show' property toggled instead. This is a quick fix.
                  */
-                gridUtil.focus.bySelector(angular.element(gridUtil.closestElm($elm, ".ui-grid-menu-items")), 'button[type=button]', true);
+                 //MTS
+                // gridUtil.focus.bySelector(angular.element(gridUtil.closestElm($elm, ".ui-grid-menu-items")), 'button[type=button]', true);
               }
             }
           };
