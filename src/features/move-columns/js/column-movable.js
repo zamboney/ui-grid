@@ -293,6 +293,7 @@
                 var $contentsElm = angular.element( $elm[0].querySelectorAll('.ui-grid-cell-contents') );
 
                 var gridLeft;
+                var gridRight;
                 var previousMouseX;
                 var totalMouseMovement;
                 var rightMoveLimit;
@@ -304,8 +305,12 @@
                 var downFn = function( event ){
                   //Setting some variables required for calculations.
                   gridLeft = $scope.grid.element[0].getBoundingClientRect().left;
+                  gridRight = $scope.grid.element[0].getBoundingClientRect().right;
                   if ( $scope.grid.hasLeftContainer() ){
                     gridLeft += $scope.grid.renderContainers.left.header[0].getBoundingClientRect().width;
+                  }
+                  if ( $scope.grid.hasRightContainer() ){
+                    gridRight += $scope.grid.renderContainers.right.header[0].getBoundingClientRect().width;
                   }
 
                   previousMouseX = event.pageX;
@@ -324,6 +329,7 @@
                 var moveFn = function( event ) {
                   var changeValue = event.pageX - previousMouseX;
                   if ( changeValue === 0 ){ return; }
+                  if (uiGridCtrl.grid.isRTL()){changeValue *= -1;}
                   //Disable text selection in Chrome during column move
                   document.onselectstart = function() { return false; };
 
@@ -434,9 +440,10 @@
                   $elm.parent().append(movingElm);
 
                   //Left of cloned element should be aligned to original header cell.
-                  movingElm.addClass('movingColumn');
+                  movingElm.addClass('movingColumn'); 
                   var movingElementStyles = {};
                   var elmLeft;
+                  var elmRight = $elm[0].getBoundingClientRect().right;
                   if (gridUtil.detectBrowser() === 'safari') {
                     //Correction for Safari getBoundingClientRect,
                     //which does not correctly compute when there is an horizontal scroll
@@ -445,9 +452,13 @@
                   else {
                     elmLeft = $elm[0].getBoundingClientRect().left;
                   }
-                  movingElementStyles.left = (elmLeft - gridLeft) + 'px';
-                  var gridRight = $scope.grid.element[0].getBoundingClientRect().right;
-                  var elmRight = $elm[0].getBoundingClientRect().right;
+                  if (uiGridCtrl.grid.isRTL()){
+                    movingElementStyles.right = (gridRight - elmRight) + 'px';
+                  }
+                  else {
+                    movingElementStyles.left = (elmLeft - gridLeft) + 'px';
+                  }
+                  gridRight = $scope.grid.element[0].getBoundingClientRect().right;
                   if (elmRight > gridRight) {
                     reducedWidth = $scope.col.drawnWidth + (gridRight - elmRight);
                     movingElementStyles.width = reducedWidth + 'px';
@@ -469,19 +480,32 @@
                   var currentElmLeft = movingElm[0].getBoundingClientRect().left - 1;
                   var currentElmRight = movingElm[0].getBoundingClientRect().right;
                   var newElementLeft;
+                  var newElementRight;
+                  var scrollEvent;
 
                   newElementLeft = currentElmLeft - gridLeft + changeValue;
                   newElementLeft = newElementLeft < rightMoveLimit ? newElementLeft : rightMoveLimit;
+                  newElementRight = gridRight - currentElmRight + changeValue;
 
                   //Update css of moving column to adjust to new left value or fire scroll in case column has reached edge of grid
-                  if ((currentElmLeft >= gridLeft || changeValue > 0) && (currentElmRight <= rightMoveLimit || changeValue < 0)) {
-                    movingElm.css({visibility: 'visible', 'left': newElementLeft + 'px'});
+                  if (uiGridCtrl.grid.isRTL()) {
+                    if ((currentElmLeft >= gridLeft || changeValue > 0) && (currentElmRight <= rightMoveLimit || changeValue < 0)) {
+                        movingElm.css({visibility: 'visible', 'right': newElementRight + 'px'});
+                    }
+                    else if (totalColumnWidth > Math.ceil(uiGridCtrl.grid.gridWidth)) {
+                        changeValue *= 8;
+                    }
                   }
-                  else if (totalColumnWidth > Math.ceil(uiGridCtrl.grid.gridWidth)) {
-                    changeValue *= 8;
-                    var scrollEvent = new ScrollEvent($scope.col.grid, null, null, 'uiGridHeaderCell.moveElement');
-                    scrollEvent.x = {pixels: changeValue};
-                    scrollEvent.grid.scrollContainers('',scrollEvent);
+                  else {
+                     if ((currentElmLeft >= gridLeft || changeValue > 0) && (currentElmRight <= rightMoveLimit || changeValue < 0)) {
+                        movingElm.css({visibility: 'visible', 'left': newElementLeft + 'px'});
+                    }
+                    else if (totalColumnWidth > Math.ceil(uiGridCtrl.grid.gridWidth)) {
+                        changeValue *= 8;
+                        scrollEvent = new ScrollEvent($scope.col.grid, null, null, 'uiGridHeaderCell.moveElement');
+                        scrollEvent.x = {pixels: changeValue};
+                        scrollEvent.grid.scrollContainers('',scrollEvent);
+                      }
                   }
 
                   //Calculate total width of columns on the left of the moving column and the mouse movement
