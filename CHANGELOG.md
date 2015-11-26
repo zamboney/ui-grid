@@ -1,3 +1,11 @@
+<a name="v3.0.1-mts.1"></a>
+### v3.0.1-mts.1 (2015-11-26)
+
+
+#### Features
+
+* **core:** Adds sort priority number to header ([ca47b8ab](http://github.com/angular-ui/ng-grid/commit/ca47b8abd7d114cb7622cd8c08a677e25134d268))
+
 <a name="v3.0.6"></a>
 ### v3.0.6 (2015-09-07)
 
