@@ -453,7 +453,7 @@
                     elmLeft = $elm[0].getBoundingClientRect().left;
                   }
                   if (uiGridCtrl.grid.isRTL()){
-                    movingElementStyles.right = (gridRight - elmRight) + 'px';
+                    movingElementStyles.right = (gridRight - elmRight - (uiGridCtrl.grid.selection ? (uiGridCtrl.grid.options.selectionRowHeaderWidth * 2) : 0)) + 'px';
                   }
                   else {
                     movingElementStyles.left = (elmLeft - gridLeft) + 'px';
@@ -485,7 +485,7 @@
 
                   newElementLeft = currentElmLeft - gridLeft + changeValue;
                   newElementLeft = newElementLeft < rightMoveLimit ? newElementLeft : rightMoveLimit;
-                  newElementRight = gridRight - currentElmRight + changeValue;
+                  newElementRight = gridRight - currentElmRight + changeValue - (uiGridCtrl.grid.selection ? (uiGridCtrl.grid.options.selectionRowHeaderWidth ) : 0);
 
                   //Update css of moving column to adjust to new left value or fire scroll in case column has reached edge of grid
                   if (uiGridCtrl.grid.isRTL()) {
